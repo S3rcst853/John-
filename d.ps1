@@ -1,4 +1,4 @@
-$Active = 0; 
+$Active = 1; 
 
 
 if ($Active -ne 1) { exit }
