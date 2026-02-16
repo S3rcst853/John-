@@ -1,6 +1,6 @@
 $lasy = 0; 
 
-if ($LASY -ne 1) { ExiT }
+if ($lasy -ne 1) { ExiT }
 
 try {
     $qSi8XK9 = [SYSTem.sEcuRIty.aUThEntICaTIon.SSLPROToCoLS]::TLs12;
